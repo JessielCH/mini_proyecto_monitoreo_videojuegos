@@ -1,0 +1,14 @@
+2023-12-19 22:33:52 - Teams.exe executed by DELL3420\Dell. Action: started. CPU: 0.00%, Memory: 1.49%
+2023-12-19 22:33:52 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 0.82%
+2023-12-19 22:33:52 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 1.89%
+2023-12-19 22:33:53 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 0.52%
+2023-12-19 22:33:54 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 0.83%
+2023-12-19 22:34:04 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 6.35%
+2023-12-19 22:34:06 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 10.20%, Memory: 1.56%
+2023-12-19 22:34:06 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 16.40%, Memory: 1.93%
+2023-12-19 22:34:07 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 1.40%, Memory: 0.54%
+2023-12-19 22:34:07 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 0.81%
+2023-12-19 22:34:07 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.50%, Memory: 0.81%
+2023-12-19 22:34:07 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 1.96%
+2023-12-19 22:34:07 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 1.02%
+2023-12-19 22:34:07 - Teams.exe executed by DELL3420\Dell. Action: running. CPU: 0.00%, Memory: 0.86%
