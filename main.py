@@ -1,12 +1,12 @@
-from scr.monitor_controller import ProgramMonitor
-def main():
-    monitor = ProgramMonitor()
+from scr.Menu import Menu
 
-    try:
-        while True:
-            monitor.monitor_programs()
-    except KeyboardInterrupt:
-        print("Monitoring stopped.")
+def main():
+    menu = Menu()
+
+    while True:
+        menu.show_menu()
+        option = input("Seleccione una opción: ")
+        menu.execute_option(option)
 
 if __name__ == "__main__":
     main()

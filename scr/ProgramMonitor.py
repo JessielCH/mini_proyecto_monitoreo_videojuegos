@@ -5,15 +5,12 @@ import datetime
 
 class ProgramMonitor:
     def __init__(self):
-        self.PROGRAMS_TO_LOG = ["teams.exe", "chrome.exe", "firefox.exe"]
-        self.LOG_FILE_PATH = os.path.abspath("program_log.txt")
+        self.PROGRAMS_TO_LOG = []
         self.PREVIOUS_STATE = set()
+        self.LOG_FILE_PATH = os.path.abspath("program_log.txt")
 
-        os.makedirs(os.path.dirname(self.LOG_FILE_PATH), exist_ok=True)
-
-        if not os.path.exists(self.LOG_FILE_PATH):
-            with open(self.LOG_FILE_PATH, "w"):
-                pass
+    def filter_inappropriate_programs(self, program_name):
+        return program_name.lower() in [p.lower() for p in self.PROGRAMS_TO_LOG]
 
     def log_program_execution(self, program_name, username, action, cpu_percent, memory_percent):
         try:
@@ -22,9 +19,6 @@ class ProgramMonitor:
                                f"CPU: {cpu_percent:.2f}%, Memory: {memory_percent:.2f}%\n")
         except Exception as e:
             print(f"Error writing to log file: {e}")
-
-    def filter_inappropriate_programs(self, program_name):
-        return program_name.lower() in [p.lower() for p in self.PROGRAMS_TO_LOG]
 
     def monitor_programs(self):
         for process in psutil.process_iter(["name", "username", "cpu_percent", "memory_percent"]):
@@ -41,3 +35,16 @@ class ProgramMonitor:
                     self.log_program_execution(program_name, username, "running", cpu_percent, memory_percent)
 
         time.sleep(10)
+
+    def start_monitoring(self):
+        os.makedirs(os.path.dirname(self.LOG_FILE_PATH), exist_ok=True)
+
+        if not os.path.exists(self.LOG_FILE_PATH):
+            with open(self.LOG_FILE_PATH, "w"):
+                pass
+
+        try:
+            while True:
+                self.monitor_programs()
+        except KeyboardInterrupt:
+            print("Monitoring stopped.")
