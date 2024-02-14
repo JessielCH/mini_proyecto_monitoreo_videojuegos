@@ -6,40 +6,34 @@ from pymongo import MongoClient
 from geopy.distance import geodesic
 import smtplib
 from email.mime.text import MIMEText
-from geopy.geocoders import Nominatim
 import requests
 
-
 class LocationMonitor:
-    def __init__(self, target_location):
-        self.target_location = target_location
-        
+    def __init__(self):
+        self.target_location = None
 
     def get_current_location(self):
         try:
-            # Obtener la dirección IP pública del usuario (puedes usar servicios como ipinfo.io)
             ip_info = requests.get("https://ipinfo.io").json()
-            ip_address = ip_info.get("ip", "")
+            location_str = ip_info.get("loc", "")
 
-            # Utilizar geopy para obtener la latitud y longitud a partir de la dirección IP
-            geolocator = Nominatim(user_agent="location_monitor")
-            location = geolocator.geocode(ip_address)
-
-            if location:
-                current_location = (location.latitude, location.longitude)
-                return current_location
+            if location_str:
+                latitude, longitude = map(float, location_str.split(","))
+                return latitude, longitude
             else:
                 print("No se pudo obtener la ubicación actual.")
                 return None
         except Exception as e:
             print(f"Error obteniendo la ubicación actual: {e}")
             return None
-        
 
     def is_outside_target_area(self):
         current_location = self.get_current_location()
-        distance = geodesic(current_location, self.target_location).meters
-        return distance > 100  # Por ejemplo, consideramos que estamos fuera del área si la distancia es mayor a 100 metros.
+        if current_location:
+            distance = geodesic(current_location, self.target_location).meters
+            return distance > 100
+        else:
+            return False
 
 class EmailNotifier:
     def __init__(self, sender_email, sender_password, receiver_email):
@@ -63,31 +57,38 @@ class EmailNotifier:
         except Exception as e:
             print(f"Error sending email: {e}")
 
-
-
 class ProgramMonitor:
-    def __init__(self,target_location):
+    def __init__(self):
         self.PROGRAMS_TO_LOG = []
         self.PREVIOUS_STATE = set()
         self.LOG_FILE_PATH = os.path.abspath("program_log.txt")
-        self.location_monitor = LocationMonitor(target_location)
+        self.location_monitor = LocationMonitor()
+        self.is_monitoring_enabled = True
         
-        #configracion mongo
-        self.client = MongoClient("mongodb://localhost:27017/")  
+        self.client = MongoClient("mongodb://localhost:27017/")
         self.db = self.client["program_monitor"]
         self.collection = self.db["program_logs"]
-        
-        # Configuración del notificador de correo electrónico
+
         self.email_notifier = EmailNotifier(sender_email="BryanDaviid333@gmail.com",
                                            sender_password="ffco lbue izbz ryeh",
                                            receiver_email="davidchalan54@gmail.com")
-        
+
+    def enable_monitoring(self):
+        self.is_monitoring_enabled = True
+
+    def disable_monitoring(self):
+        self.is_monitoring_enabled = False
 
     def filter_inappropriate_programs(self, program_name):
         return program_name.lower() in [p.lower() for p in self.PROGRAMS_TO_LOG]
 
+    def check_and_take_action(self):
+        if self.is_monitoring_enabled and self.location_monitor.is_outside_target_area():
+            subject = "¡Alerta! Saliste del área designada"
+            message = "Se detectó que has salido del área designada. Por favor, verifica tu ubicación."
+            self.email_notifier.send_email(subject, message)
+
     def log_program_execution(self, program_name, username, action, cpu_percent, memory_percent):
-        #creacion entrada json
         log_entry = {
             "timestamp": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "program_name": program_name,
@@ -101,7 +102,7 @@ class ProgramMonitor:
             self.collection.insert_one(log_entry)
         except Exception as e:
             print(f"Error writing to MongoDB: {e}")
-            
+
     def monitor_programs(self):
         for process in psutil.process_iter(["name", "username", "cpu_percent", "memory_percent"]):
             program_name = process.info.get("name", "")
@@ -114,19 +115,4 @@ class ProgramMonitor:
                     self.log_program_execution(program_name, username, "started", cpu_percent, memory_percent)
                     self.PREVIOUS_STATE.add(program_name.lower())
                 else:
-                    self.log_program_execution(program_name, username, "running", cpu_percent, memory_percent)
-            
-            if self.location_monitor.is_outside_target_area():
-                subject = "¡Alerta! Saliste del área designada"
-                message = "Se detectó que has salido del área designada. Por favor, verifica tu ubicación."
-            self.email_notifier.send_email(subject, message)        
-
-        time.sleep(10)
-
-    def start_monitoring(self):
-        try:
-            while True:
-                self.monitor_programs()
-        except KeyboardInterrupt:
-            print("Monitoring stopped.")
-            self.client.close()  # Cierra la conexión al finalizar
+                    self.log_program_execution(program_name, username, "running
